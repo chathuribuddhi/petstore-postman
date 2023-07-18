@@ -513,8 +513,39 @@
 									"listen": "test",
 									"script": {
 										"exec": [
-											"pm.test(\"Verify request is successful with a status code of 404 if the petID is invalid\", function () {",
-											"  pm.response.to.have.status(404);",
+											"pm.test(\"Verify request is successful with a status code of 200 if the petID is deleted successfully\", function () {",
+											"  pm.response.to.have.status(200);",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"pm.sendRequest({",
+											"    url: pm.collectionVariables.get(\"baseUrl\") + '/pet',",
+											"    method: 'POST',",
+											"    header: {",
+											"        'Content-Type': 'application/json',",
+											"    },",
+											"    body: JSON.stringify({",
+											"    \"name\": \"Adolfo Cat\",",
+											"    \"photoUrls\": [",
+											"      \"http://placeimg.com/640/480/animals\"",
+											"    ],",
+											"    \"id\": Math.floor(Math.random() * 10),",
+											"    \"category\": {",
+											"      \"id\": Math.floor(Math.random() * 10),",
+											"      \"name\": \"system\"",
+											"    },",
+											"    \"tags\": [],",
+											"    \"status\": \"available\"",
+											"  })",
+											"}, function (err, res) {",
+											"    console.log('pet ' + res.json().id + ' created');",
+											"    pm.globals.set(\"petId\", res.json().id);",
 											"});"
 										],
 										"type": "text/javascript"
@@ -550,13 +581,19 @@
 									}
 								],
 								"url": {
-									"raw": "{{baseUrl}}/pet/427166739847256770",
+									"raw": "{{baseUrl}}/pet/:petId",
 									"host": [
 										"{{baseUrl}}"
 									],
 									"path": [
 										"pet",
-										"427166739847256770"
+										":petId"
+									],
+									"variable": [
+										{
+											"key": "petId",
+											"value": "{{petId}}"
+										}
 									]
 								}
 							},
@@ -990,17 +1027,20 @@
 									"",
 									"pm.test(\"Verify Pet Category is correctly appearing\", () => {",
 									"  const responseJson = pm.response.json();",
-									"  pm.expect(responseJson.category.name).to.eql(\"Test Cat name\");",
+									"  const request = JSON.parse(pm.request.body.raw);",
+									"  pm.expect(responseJson.category.name).to.eql(request.category.name);",
 									"});",
 									"",
 									"pm.test(\"Verify Pet Name is correctly appearing\", () => {",
 									"  const responseJson = pm.response.json();",
-									"  pm.expect(responseJson.name).to.eql(\"Test Pet name\");",
+									"  const request = JSON.parse(pm.request.body.raw);",
+									"  pm.expect(responseJson.name).to.eql(request.name);",
 									"});",
 									"",
 									"pm.test(\"Verify Photo URL is correctly appearing\", () => {",
 									"  const responseJson = pm.response.json();",
-									"  pm.expect(responseJson.photoUrls).to.eql([\"photoUrls1\"]);",
+									"  const request = JSON.parse(pm.request.body.raw);",
+									"  pm.expect(responseJson.photoUrls).to.eql(request.photoUrls);",
 									"});",
 									"",
 									"pm.test(\"Verify Status is correctly appearing\", () => {",
@@ -1043,7 +1083,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"id\": 0,\n  \"category\": {\n    \"id\": 0,\n    \"name\": \"Test Cat name\"\n  },\n  \"name\": \"Test Pet name\",\n  \"photoUrls\": [\n    \"photoUrls1\"\n  ],\n  \"tags\": [],\n  \"status\": \"available\"\n}",
+							"raw": "{\n  \"id\": {{$randomInt}},\n  \"category\": {\n    \"id\": {{$randomInt}},\n    \"name\": \"{{$randomNoun}}\"\n  },\n  \"name\": \"{{$randomFirstName}}\",\n  \"photoUrls\": [\n    \"{{$randomAnimalsImage}}\"\n  ],\n  \"tags\": [],\n  \"status\": \"available\"\n}",
 							"options": {
 								"raw": {
 									"headerFamily": "json",
