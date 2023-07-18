@@ -513,8 +513,8 @@
 									"listen": "test",
 									"script": {
 										"exec": [
-											"pm.test(\"Verify request is successful with a status code of 200 if the petID is valid\", function () {",
-											"  pm.response.to.have.status(200);",
+											"pm.test(\"Verify request is successful with a status code of 404 if the petID is invalid\", function () {",
+											"  pm.response.to.have.status(404);",
 											"});"
 										],
 										"type": "text/javascript"
